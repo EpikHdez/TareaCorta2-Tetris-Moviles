@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">Tetris</string>
 
-    <string name="playButton">Play</string>
+    <string name="playButton">Jugar</string>
+    <string name="leftButton">Izq.</string>
+    <string name="rightButton">Der.</string>
+    <string name="downButton">Abajo</string>
 </resources>

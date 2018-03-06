@@ -5,4 +5,5 @@
     <string name="leftButton">Izq.</string>
     <string name="rightButton">Der.</string>
     <string name="downButton">Abajo</string>
+    <string name="rotateButton">Rotar</string>
 </resources>

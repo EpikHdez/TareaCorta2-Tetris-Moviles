@@ -8,9 +8,14 @@ public class ZPiece extends TetrisPiece {
     public ZPiece(int resourceImage) {
         super(resourceImage);
 
-        positions[0] = new Cell(0, 7);
-        positions[1] = new Cell(1, 7);
-        positions[2] = new Cell(1, 6);
-        positions[3] = new Cell(2, 6);
+        positions[0] = new Cell(0, 6);
+        positions[1] = new Cell(1, 6);
+        positions[2] = new Cell(1, 5);
+        positions[3] = new Cell(2, 5);
+    }
+
+    @Override
+    public void rotate() {
+
     }
 }

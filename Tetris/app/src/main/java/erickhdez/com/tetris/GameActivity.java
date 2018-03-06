@@ -1,33 +1,28 @@
 package erickhdez.com.tetris;
 
-import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
+import android.content.res.Resources;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
-import erickhdez.com.tetris.tetris.factory.TetrisPiecesFactory;
 import erickhdez.com.tetris.tetris.pieces.Cell;
+import erickhdez.com.tetris.tetris.pieces.IPiece;
 import erickhdez.com.tetris.tetris.pieces.TetrisPiece;
 
 public class GameActivity extends AppCompatActivity {
-    public enum CellState {EMPTY, WALL, FILLED, PIECE}
-    public enum MoveState {FREE, RESTRAINEDLEFT, RESTRAINEDRIGHT, STOP}
+    public enum CellState {EMPTY, FILLED, PIECE}
 
-    private LayoutInflater layoutInflater;
+    private int rows;
+    private int columns;
 
-    private int rowsCount;
-    private int columnsCount;
-
-    private ImageView[][] screenCells;
+    private GridLayout playAreaLayout;
     private CellState[][] controlCells;
+    private ImageView[][] uiCells;
 
     private TetrisPiece currentPiece = null;
 
@@ -36,175 +31,192 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        initVariables();
-        setUpGridLayout();
+        playAreaLayout = findViewById(R.id.playAreaLayout);
+        rows = playAreaLayout.getRowCount();
+        columns = playAreaLayout.getColumnCount();
 
-        startGame();
+        controlCells = new CellState[rows][columns];
+        uiCells = new ImageView[rows][columns];
+
+        setUpControlCells();
+        setUpUiCells();
     }
 
-    private void initVariables() {
-        GridLayout playArea = findViewById(R.id.playArea);
-
-        rowsCount = playArea.getRowCount();
-        columnsCount = playArea.getColumnCount();
-
-        screenCells = new ImageView[rowsCount][columnsCount];
-        controlCells = new CellState[rowsCount][columnsCount];
-    }
-
-    private void setUpGridLayout() {
-        GridLayout playArea = findViewById(R.id.playArea);
-        View view;
-
-        for(int position = 0; position < playArea.getChildCount(); position++) {
-            view = playArea.getChildAt(position);
-
-            if(view instanceof ImageView) {
-                setUpImageView((ImageView) view);
+    private void setUpControlCells() {
+        for(int row = 0; row < rows; row++) {
+            for(int column = 0; column < columns; column++) {
+                controlCells[row][column] = CellState.EMPTY;
             }
         }
     }
 
-    private void setUpImageView(ImageView imageView) {
-        String tag = imageView.getTag().toString();
-        String[] position = tag.split(",");
+    private void setUpUiCells() {
+        View view;
+        int[] position;
 
-        int row = Integer.parseInt(position[0]);
-        int column = Integer.parseInt(position[1]);
+        for(int index = 0; index < playAreaLayout.getChildCount(); index++) {
+            view = playAreaLayout.getChildAt(index);
 
-        screenCells[row][column] = imageView;
+            if(view instanceof ImageView) {
+                position = getImageViewPosition((ImageView) view);
 
-        if(isWall(row, column)) {
-            imageView.setImageResource(R.drawable.tg);
-            controlCells[row][column] = CellState.WALL;
-        } else {
-            imageView.setImageResource(R.color.backgroung);
-            controlCells[row][column] = CellState.EMPTY;
+                uiCells[position[0]][position[1]] = (ImageView) view;
+            }
         }
     }
 
-    private boolean isWall(int row, int column) {
-        if(row + 1 == rowsCount || column == 0 || column + 1 == columnsCount) {
-            return true;
+    private int[] getImageViewPosition(ImageView imageView) {
+        String[] tag = imageView.getTag().toString().split(",");
+        int[] position = new int[2];
+
+        position[0] = Integer.parseInt(tag[0]);
+        position[1] = Integer.parseInt(tag[1]);
+
+        return position;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        startGame();
+    }
+
+    private synchronized boolean collidesBelow() {
+        for(Cell cell : currentPiece.getPositions()) {
+            if(cell.getRow() + 1 >= rows ||
+                    controlCells[cell.getRow() + 1][cell.getColumn()] == CellState.FILLED){
+                return true;
+            }
         }
 
         return false;
     }
 
-    private synchronized MoveState collides() {
+    private boolean collidesLeft() {
         for(Cell cell : currentPiece.getPositions()) {
-            int row = cell.getRow();
-            int column = cell.getColumn();
-
-            if(controlCells[row + 1][column] == CellState.FILLED ||
-                    controlCells[row + 1][column] == CellState.WALL) {
-                return MoveState.STOP;
-            }
-
-            if(controlCells[row][column - 1] == CellState.WALL ||
-                    controlCells[row][column - 1] == CellState.FILLED) {
-                return MoveState.RESTRAINEDLEFT;
-            }
-
-            if(controlCells[row][column + 1] == CellState.WALL ||
-                    controlCells[row][column + 1] == CellState.FILLED) {
-                return MoveState.RESTRAINEDRIGHT;
+            if(cell.getColumn() - 1 < 0  ||
+                    controlCells[cell.getRow()][cell.getColumn() - 1] == CellState.FILLED){
+                return true;
             }
         }
 
-        return MoveState.FREE;
+        return false;
     }
 
-    public void onBtnClicked(View view) {
-        if(!(view instanceof Button)) {
+    private boolean collidesRight() {
+        for(Cell cell : currentPiece.getPositions()) {
+            if(cell.getColumn() + 1 >= columns  ||
+                    controlCells[cell.getRow()][cell.getColumn() + 1] == CellState.FILLED){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private synchronized void setPositionsAsFilled() {
+        for(Cell cell : currentPiece.getPositions()) {
+            controlCells[cell.getRow()][cell.getColumn()] = CellState.FILLED;
+        }
+    }
+
+    private synchronized void clearPreviousPostions() {
+        for(Cell cell : currentPiece.getPositions()) {
+            controlCells[cell.getRow()][cell.getColumn()] = CellState.EMPTY;
+            uiCells[cell.getRow()][cell.getColumn()].setImageResource(R.color.background);
+        }
+    }
+
+    private synchronized void paintNewPositions() {
+        for(Cell cell : currentPiece.getPositions()) {
+            controlCells[cell.getRow()][cell.getColumn()] = CellState.PIECE;
+            uiCells[cell.getRow()][cell.getColumn()].setImageResource(currentPiece.getResourceImage());
+        }
+    }
+
+    private synchronized void movePieceDown() {
+        if(collidesBelow()) {
+            setPositionsAsFilled();
+            currentPiece = null;
             return;
         }
 
-        MoveState currentState = collides();
+        clearPreviousPostions();
+        currentPiece.moveDown();
+        paintNewPositions();
+    }
 
-        if(currentState == MoveState.STOP) {
+    private synchronized void movePieceLeft() {
+        if(collidesLeft()) {
             return;
         }
 
-        clearPreviousPositions();
+        clearPreviousPostions();
+        currentPiece.moveLeft();
+        paintNewPositions();
+    }
 
-        switch (view.getId()) {
-            case R.id.btnDown:
-                currentPiece.moveDown();
-                break;
+    private synchronized void movePieceRight() {
+        if(collidesRight()) {
+            return;
+        }
 
-            case R.id.btnLeft:
-                if(currentState != MoveState.RESTRAINEDLEFT) {
-                    currentPiece.moveLeft();
-                }
-                break;
+        clearPreviousPostions();
+        currentPiece.moveRight();
+        paintNewPositions();
+    }
 
-            case R.id.btnRight:
-                if(currentState != MoveState.RESTRAINEDRIGHT) {
-                    currentPiece.moveRight();
-                }
-                break;
+    private void rotatePiece() {
+        clearPreviousPostions();
+        currentPiece.rotate();
 
-            default:
-                return;
+        if(collidesRight() || collidesLeft()) {
+            currentPiece.rotate();
         }
 
         paintNewPositions();
     }
 
-    private synchronized void clearPreviousPositions() {
-        for(Cell cell : currentPiece.getPositions()) {
-            screenCells[cell.getRow()][cell.getColumn()].setImageResource(R.color.backgroung);
-            controlCells[cell.getRow()][cell.getColumn()] = CellState.EMPTY;
-        }
-    }
+    public void onBtnClicked(View view) {
+        switch (view.getId()) {
+            case R.id.btnDown:
+                movePieceDown();
+                break;
 
-    private synchronized void paintNewPositions() {
-        int imageId = currentPiece.getResourceImage();
+            case R.id.btnLeft:
+                movePieceLeft();
+                break;
 
-        for(Cell cell : currentPiece.getPositions()) {
-            screenCells[cell.getRow()][cell.getColumn()].setImageResource(imageId);
-            controlCells[cell.getRow()][cell.getColumn()] = CellState.PIECE;
-        }
-    }
+            case R.id.btnRight:
+                movePieceRight();
+                break;
 
-    private synchronized void setPositionsAsFilled() {
-        for (Cell cell : currentPiece.getPositions()) {
-            controlCells[cell.getRow()][cell.getColumn()] = CellState.FILLED;
+            case R.id.btnRotate:
+                rotatePiece();
+                break;
+
+            default:
+                return;
         }
     }
 
     private void startGame() {
-        final Handler handler = new Handler();
-
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                handler.post(new Runnable() {
-                    MoveState currentState;
-
+                runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         if(currentPiece == null) {
-                            currentPiece = TetrisPiecesFactory.createPiece(getApplicationContext());
+                            currentPiece = new IPiece(R.drawable.taz);
                             paintNewPositions();
                         }
 
-                        currentState = collides();
-
-                        if(currentState == MoveState.FREE ||
-                                currentState == MoveState.RESTRAINEDLEFT ||
-                                currentState == MoveState.RESTRAINEDRIGHT) {
-                            clearPreviousPositions();
-                            currentPiece.moveDown();
-                            paintNewPositions();
-                        } else {
-                            setPositionsAsFilled();
-                            currentPiece = null;
-                        }
+                        movePieceDown();
                     }
                 });
             }
-        }, 0, 1000);
+        }, 0, 700);
     }
 }

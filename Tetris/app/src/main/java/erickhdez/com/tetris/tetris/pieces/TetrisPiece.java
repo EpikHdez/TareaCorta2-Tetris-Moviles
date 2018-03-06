@@ -7,9 +7,11 @@ package erickhdez.com.tetris.tetris.pieces;
 public abstract class TetrisPiece {
     protected int resourceImage;
     protected Cell[] positions;
+    protected Cell[] valuesToAddOnRotate;
 
     public TetrisPiece(int resourceImage) {
         positions = new Cell[4];
+        valuesToAddOnRotate = new Cell[4];
         this.resourceImage = resourceImage;
     }
 
@@ -38,4 +40,6 @@ public abstract class TetrisPiece {
             positions[i].setColumn(positions[i].getColumn() + 1);
         }
     }
+
+    public abstract void rotate();
 }

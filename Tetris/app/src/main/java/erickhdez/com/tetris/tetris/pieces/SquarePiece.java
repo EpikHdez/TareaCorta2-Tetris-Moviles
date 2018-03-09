@@ -8,10 +8,9 @@ public class SquarePiece extends TetrisPiece {
     public SquarePiece(int resourceImage) {
         super(resourceImage);
 
-        positions[0] = new Cell(0, 5);
-        positions[1] = new Cell(0, 6);
-        positions[2] = new Cell(1, 5);
-        positions[3] = new Cell(1, 6);
+        positions = new Cell[][] {
+                {new Cell(0, 5), new Cell(0, 6), new Cell(1, 5), new Cell(1, 6)}
+        };
     }
 
     @Override

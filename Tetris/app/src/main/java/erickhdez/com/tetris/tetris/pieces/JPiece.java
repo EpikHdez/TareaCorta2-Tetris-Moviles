@@ -8,14 +8,11 @@ public class JPiece extends TetrisPiece {
     public JPiece(int resourceImage) {
         super(resourceImage);
 
-        positions[0] = new Cell(0, 6);
-        positions[1] = new Cell(1, 6);
-        positions[2] = new Cell(2, 6);
-        positions[3] = new Cell(2, 5);
-    }
-
-    @Override
-    public void rotate() {
-
+        positions = new Cell[][] {
+                {new Cell(0, 6), new Cell(1, 6), new Cell(2, 6), new Cell(2, 5)},
+                {new Cell(0, 5), new Cell(0, 6), new Cell(0, 7), new Cell(1, 7)},
+                {new Cell(0, 5), new Cell(1, 5), new Cell(2, 5), new Cell(0, 6)},
+                {new Cell(0, 5), new Cell(1, 5), new Cell(1, 6), new Cell(1, 7)}
+        };
     }
 }

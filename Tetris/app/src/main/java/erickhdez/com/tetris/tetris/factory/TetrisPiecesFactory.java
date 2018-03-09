@@ -5,6 +5,7 @@ import android.content.res.Resources;
 
 import java.util.Random;
 
+import erickhdez.com.tetris.R;
 import erickhdez.com.tetris.tetris.pieces.IPiece;
 import erickhdez.com.tetris.tetris.pieces.JPiece;
 import erickhdez.com.tetris.tetris.pieces.LPiece;
@@ -19,9 +20,7 @@ import erickhdez.com.tetris.tetris.pieces.ZPiece;
  */
 
 public class TetrisPiecesFactory {
-    private enum PieceType {IPIECE, SPIECE, ZPIECE, LPIECE, JPIECE, SQUAREPIECE, TPIECE}
-
-    private static String[] images = {"tam", "taz", "tc", "tm", "tn", "tr", "tv"};
+    private enum PieceType {IPiece, SPiece, ZPiece, LPiece, JPiece, SquarePiece, TPiece}
 
     public static TetrisPiece createPiece(Context context) {
         Random random = new Random();
@@ -29,32 +28,27 @@ public class TetrisPiecesFactory {
         int pieceTypeIndex = Math.abs(random.nextInt() % PieceType.values().length);
         PieceType piece = PieceType.values()[pieceTypeIndex];
 
-        int imageIndex = Math.abs(random.nextInt() % images.length);
-        String imageName = images[imageIndex];
-        Resources resources = context.getResources();
-        int resourceId = resources.getIdentifier(imageName, "drawable", context.getPackageName());
-
         switch (piece) {
-            case JPIECE:
-                return new JPiece(resourceId);
+            case JPiece:
+                return new JPiece(R.drawable.taz);
 
-            case LPIECE:
-                return new LPiece(resourceId);
+            case LPiece:
+                return new LPiece(R.drawable.tn);
 
-            case ZPIECE:
-                return new ZPiece(resourceId);
+            case ZPiece:
+                return new ZPiece(R.drawable.tr);
 
-            case SPIECE:
-                return new SPiece(resourceId);
+            case SPiece:
+                return new SPiece(R.drawable.tv);
 
-            case IPIECE:
-                return new IPiece(resourceId);
+            case IPiece:
+                return new IPiece(R.drawable.tc);
 
-            case TPIECE:
-                return new TPiece(resourceId);
+            case TPiece:
+                return new TPiece(R.drawable.tm);
 
             default:
-                return new SquarePiece(resourceId);
+                return new SquarePiece(R.drawable.tam);
         }
     }
 }

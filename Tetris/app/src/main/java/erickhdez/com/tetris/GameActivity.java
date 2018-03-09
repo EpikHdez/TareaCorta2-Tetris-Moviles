@@ -118,7 +118,7 @@ public class GameActivity extends AppCompatActivity {
 
     private void checkForCompletedRows() {
         int rowCellsCount;
-        int rowsCounter = 0;
+        int combo = 0;
 
         for (int row = rows - 1; row >= 0; row--) {
             rowCellsCount = 0;
@@ -130,16 +130,12 @@ public class GameActivity extends AppCompatActivity {
             }
 
             if (rowCellsCount == columns) {
-                deleteRow(row);
-                row++;
-                rowsCounter++;
+                deleteRow(row++);
+                score += ++combo * rowCompletedScore;
             }
         }
 
-        if(rowsCounter > 0) {
-            score += rowsCounter * rowCompletedScore;
-            scoreTextView.setText(String.valueOf(score));
-        }
+        scoreTextView.setText(String.valueOf(score));
     }
 
     private void deleteRow(int startRow) {
@@ -210,13 +206,13 @@ public class GameActivity extends AppCompatActivity {
 
     private void clearNextCells() {
         for(Cell cell : nextPiece.getPositions()) {
-            uiCellsNext[cell.getRow()][cell.getColumn() - 5].setImageResource(R.color.background);
+            uiCellsNext[cell.getRow()][cell.getColumn() % 4].setImageResource(R.color.background);
         }
     }
 
     private void paintNextPositions() {
         for(Cell cell : nextPiece.getPositions()) {
-            uiCellsNext[cell.getRow()][cell.getColumn() - 5].setImageResource(nextPiece.getResourceImage());
+            uiCellsNext[cell.getRow()][cell.getColumn() % 4].setImageResource(nextPiece.getResourceImage());
         }
     }
 

@@ -3,10 +3,12 @@ package erickhdez.com.tetris;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Layout;
 import android.util.Log;
 import android.view.View;
 import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.Timer;
@@ -14,7 +16,6 @@ import java.util.TimerTask;
 
 import erickhdez.com.tetris.tetris.factory.TetrisPiecesFactory;
 import erickhdez.com.tetris.tetris.pieces.Cell;
-import erickhdez.com.tetris.tetris.pieces.SquarePiece;
 import erickhdez.com.tetris.tetris.pieces.TetrisPiece;
 
 public class GameActivity extends AppCompatActivity {
@@ -30,6 +31,8 @@ public class GameActivity extends AppCompatActivity {
     private int score;
 
     private GridLayout playAreaLayout;
+    private RelativeLayout gameOverLayout;
+
     private CellState[][] controlCells;
     private ImageView[][] uiCells;
     private ImageView[][] uiCellsNext;
@@ -45,6 +48,8 @@ public class GameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_game);
 
         playAreaLayout = findViewById(R.id.playAreaLayout);
+        gameOverLayout = findViewById(R.id.gameOverLayout);
+
         rows = playAreaLayout.getRowCount();
         columns = playAreaLayout.getColumnCount();
 
@@ -193,7 +198,7 @@ public class GameActivity extends AppCompatActivity {
     private synchronized void clearPreviousPostions() {
         for(Cell cell : currentPiece.getPositions()) {
             controlCells[cell.getRow()][cell.getColumn()] = CellState.EMPTY;
-            uiCells[cell.getRow()][cell.getColumn()].setImageResource(R.color.background);
+            uiCells[cell.getRow()][cell.getColumn()].setImageResource(android.R.color.black);
         }
     }
 
@@ -206,13 +211,13 @@ public class GameActivity extends AppCompatActivity {
 
     private void clearNextCells() {
         for(Cell cell : nextPiece.getPositions()) {
-            uiCellsNext[cell.getRow()][cell.getColumn() % 4].setImageResource(R.color.background);
+            uiCellsNext[cell.getRow()][cell.getColumn() % 3].setImageResource(android.R.color.black);
         }
     }
 
     private void paintNextPositions() {
         for(Cell cell : nextPiece.getPositions()) {
-            uiCellsNext[cell.getRow()][cell.getColumn() % 4].setImageResource(nextPiece.getResourceImage());
+            uiCellsNext[cell.getRow()][cell.getColumn() % 3].setImageResource(nextPiece.getResourceImage());
         }
     }
 
@@ -308,6 +313,12 @@ public class GameActivity extends AppCompatActivity {
 
                             if(collidesBelow()) {
                                 gameOver = true;
+
+
+                                gameOverLayout.setVisibility(View.VISIBLE);
+                                gameOverLayout.bringToFront();
+                                gameOverLayout.invalidate();
+
                                 return;
                             }
 
@@ -322,11 +333,10 @@ public class GameActivity extends AppCompatActivity {
                 if(gameOver) {
                     mediaPlayer.stop();
                     mediaPlayer.release();
+
                     this.cancel();
                 }
             }
         }, 0, 1000);
-
-        Log.d("Nombre", "startGame: " + SquarePiece.class.getName());
     }
 }

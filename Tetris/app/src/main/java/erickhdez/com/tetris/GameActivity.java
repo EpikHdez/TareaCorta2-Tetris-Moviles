@@ -65,6 +65,10 @@ public class GameActivity extends AppCompatActivity {
         setUpUiCells();
     }
 
+    public void btnReturnOnClick(View view) {
+        finish();
+    }
+
     private void setUpControlCells() {
         for(int row = 0; row < rows; row++) {
             for(int column = 0; column < columns; column++) {
@@ -211,13 +215,13 @@ public class GameActivity extends AppCompatActivity {
 
     private void clearNextCells() {
         for(Cell cell : nextPiece.getPositions()) {
-            uiCellsNext[cell.getRow()][cell.getColumn() % 3].setImageResource(android.R.color.black);
+            uiCellsNext[cell.getRow()][cell.getColumn() % 4].setImageResource(android.R.color.black);
         }
     }
 
     private void paintNextPositions() {
         for(Cell cell : nextPiece.getPositions()) {
-            uiCellsNext[cell.getRow()][cell.getColumn() % 3].setImageResource(nextPiece.getResourceImage());
+            uiCellsNext[cell.getRow()][cell.getColumn() % 4].setImageResource(nextPiece.getResourceImage());
         }
     }
 

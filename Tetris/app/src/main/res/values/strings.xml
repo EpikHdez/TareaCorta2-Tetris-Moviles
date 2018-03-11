@@ -6,6 +6,7 @@
     <string name="rightButton">Der.</string>
     <string name="downButton">Abajo</string>
     <string name="rotateButton">Rotar</string>
+    <string name="returnButton">Volver</string>
 
     <string name="score">Puntos</string>
     <string name="next">Siguiente</string>

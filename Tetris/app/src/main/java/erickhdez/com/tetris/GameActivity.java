@@ -261,7 +261,7 @@ public class GameActivity extends AppCompatActivity {
         clearPreviousPostions();
         currentPiece.rotate();
 
-        if(collidesRight() || collidesLeft()) {
+        if(collidesBelow() || collidesRight() || collidesLeft()) {
             currentPiece.rotateBack();
         }
 
